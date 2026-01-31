@@ -7,7 +7,7 @@ Single `index.html` app for uploading docs and chatting against the FastAPI back
 - `frontend/index.html`
 
 ## API INTEGRATION
-- `API_BASE` hardcoded to `http://localhost:8001`.
+- `API_BASE` is hardcoded to `http://localhost:8001`.
 - Upload:
   - `POST ${API_BASE}/upload` (multipart)
   - Polls `GET ${API_BASE}/status/{job_id}` every 2s
@@ -18,5 +18,8 @@ Single `index.html` app for uploading docs and chatting against the FastAPI back
 - Served by `nginx:alpine` in `docker-compose.yml`.
 - Access via `http://localhost:8080`.
 
+## ANTI-PATTERNS
+- Do not point the UI at `:8000` (container port); use `:8001` (host port).
+
 ## NOTES
-- CORS is permissive on the backend (`allow_origins=["*"]`), so this page can be served from anywhere during dev.
+- Backend CORS is permissive (`allow_origins=["*"]`) for local dev.

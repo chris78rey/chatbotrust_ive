@@ -1,54 +1,57 @@
-# PROJECT GUIDE (AGENTS)
+# PROJECT KNOWLEDGE BASE
+
+**Generated:** 2026-01-31
+**Commit:** 1a406ce
+**Branch:** main
 
 ## OVERVIEW
-Minimal RAG chatbot stack: FastAPI API + Qdrant vectors + Ollama LLM + static HTML frontend (nginx), orchestrated via Docker Compose.
+Minimal RAG chatbot stack: FastAPI API + Qdrant vector search + Ollama LLM + static HTML frontend (nginx), orchestrated via Docker Compose.
 
 ## STRUCTURE
 ```
 ./
 ├── docker-compose.yml        # Local/dev stack (ports + env)
-├── inst.md                   # Detailed implementation notes (Spanish)
-├── app/                      # FastAPI backend
-│   ├── main.py               # API endpoints + RAG pipeline
-│   ├── requirements.txt      # Python deps
-│   └── Dockerfile            # Backend image
-├── frontend/                 # Static UI served by nginx
-│   └── index.html
-├── data/                     # Bind mount for SQLite file (runtime)
+├── inst.md                   # Implementation notes (Spanish)
+├── app/                      # FastAPI backend (RAG pipeline)
+├── frontend/                 # Static UI (nginx)
+├── data/                     # Bind mount for SQLite (runtime)
 └── uploads/                  # Bind mount for uploaded docs (runtime)
 ```
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |------|----------|-------|
-| Run full stack | `docker-compose.yml` | Defines ports + env vars for API/Qdrant/Ollama/frontend |
-| Backend API | `app/main.py` | `/upload`, `/status/{job_id}`, `/query`, `/query-stream` |
-| Frontend UI | `frontend/index.html` | Hits API at `http://localhost:8001` |
-| Architecture notes | `inst.md` | Reference spec + rationale |
+| Run full stack | `docker-compose.yml` | Ports + env vars for all services |
+| Backend RAG logic | `app/main.py` | `/upload`, `/status/{job_id}`, `/query`, `/query-stream` |
+| Frontend UI | `frontend/index.html` | Calls API at `http://localhost:8001` |
+| Spec / rationale | `inst.md` | Kept in sync with current repo |
 
-## RUNTIME PORTS (docker-compose)
-- Frontend (nginx): `8080` (maps container `80`)
-- API (FastAPI): `8001` (maps container `8000`)
-- Qdrant: `6335` (maps container `6333`)
-- Ollama: `11435` (maps container `11434`)
+## RUNTIME PORTS (HOST)
+- Frontend (nginx): `http://localhost:8080`
+- API (FastAPI): `http://localhost:8001`
+- Qdrant: `http://localhost:6335`
+- Ollama: `http://localhost:11435`
 
 ## COMMANDS
 ```bash
 # Start everything
-docker compose up --build
+docker compose up --build -d
 
 # Logs
 docker compose logs -f api
-docker compose logs -f qdrant
-docker compose logs -f ollama
 
-# Basic checks
-curl http://localhost:8001/status/some-job-id
+auth="Content-Type: application/json"
+# Check Ollama model
 curl http://localhost:11435/api/tags
+
+# API docs
+curl -I http://localhost:8001/docs
 ```
 
-## NOTES / GOTCHAS
-- `data/` and `uploads/` are runtime mounts; do not treat them as source.
-- LSP diagnostics are not available by default in this environment:
-  - Python: `basedpyright` not installed
-  - Web/JS/HTML: `biome` not installed
+## ANTI-PATTERNS (THIS PROJECT)
+- Do not commit `data/` or `uploads/` (runtime mounts).
+- Do not treat `data/` or `uploads/` as source code.
+
+## NOTES
+- Compose `depends_on` does not guarantee readiness; if startup races happen, restart `api`.
+- LSP diagnostics may be unavailable in this environment.
