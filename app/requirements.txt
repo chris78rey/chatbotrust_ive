@@ -1,0 +1,19 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Avoid NumPy 2.x incompatibilities in some ML wheels
+# Pin explicitly to avoid cache/resolver surprises
+numpy==1.26.4
+
+# Force CPU-only PyTorch wheel (avoid CUDA/NVIDIA deps)
+torch==2.2.2+cpu
+sentence-transformers==2.3.1
+
+qdrant-client==1.7.3
+PyPDF2==3.0.1
+python-docx==1.1.0
+onnxruntime==1.16.3
+httpx==0.26.0

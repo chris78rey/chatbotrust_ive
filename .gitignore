@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Windows reserved/odd files
+NUL
+
+# Secrets / env
+.env
+.env.*
+
+# Runtime mounts (do not commit)
+data/
+uploads/
+
+# Local sample documents
+rosalesmio.txt
+
+# Local databases / logs
+*.db
+*.sqlite
+*.sqlite3
+*.log

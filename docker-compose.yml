@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve &
+       sleep 5 &&
+       ollama pull llama3.2:1b &&
+       wait"
+
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    ports:
+      - "6335:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    depends_on:
+      - ollama
+
+  api:
+    build: ./app
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data:/data
+      - ./uploads:/uploads
+    depends_on:
+      - qdrant
+      - ollama
+    environment:
+      QDRANT_HOST: qdrant
+      OLLAMA_HOST: ollama
+      SQLITE_PATH: /data/app.db
+      UPLOAD_DIR: /uploads
+      QDRANT_COLLECTION: BASE_CONOCIMIENTO
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+
+volumes:
+  qdrant_data:
+  ollama_models:
